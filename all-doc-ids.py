@@ -1,14 +1,28 @@
 from ibm_watson import DiscoveryV1
+from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
 import threading
 from ibm_watson import ApiException
+from dotenv import load_dotenv
+load_dotenv()
+import os
 
-environmentId = "{environment_id}"
-collectionId = "{collection_id}"
+environmentId = os.getenv("ENVIRONMENTID")
+collectionId = os.getenv("COLLECTIONID")
+discoveryVersion = os.getenv("VERSION")
+discoveryApiKey = os.getenv("IAMAPIKEY")
+discoveryURL = os.getenv("DISCOVERYURL")
+
+authenticator = IAMAuthenticator(discoveryApiKey)
+
 discovery = DiscoveryV1(
-    '{discovery_version}',
-    iam_apikey="{iam_apikey}")
+    version=discoveryVersion,
+    authenticator=authenticator
+)
+
+discovery.set_service_url(discoveryURL)
 
 collection = discovery.get_collection(environmentId, collectionId).get_result()
+
 totalDocuments = collection['document_counts']['available']
 print("**Total number of documents in collection " + collectionId + ": " + str(totalDocuments))
 
